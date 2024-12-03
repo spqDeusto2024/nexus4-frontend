@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  vue_app:
+    build: .
+    ports:
+      - "8080:80"
+    container_name: nexus4-frontend
+    volumes:
+      - ./dist:/usr/share/nginx/html
