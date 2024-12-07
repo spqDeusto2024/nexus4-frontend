@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   vue_app:
@@ -7,4 +7,6 @@ services:
       - "8080:80"
     container_name: nexus4-frontend
     volumes:
-      - ./dist:/usr/share/nginx/html
+      - ./dist:/usr/share/nginx/html:cached
+    stdin_open: true
+    tty: true
