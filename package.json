@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "https://registry.npmjs.org/axios/-/axios-0.21.1.tgz",
     "core-js": "^3.8.3",
     "vue": "^3.5.13"
   },

@@ -1,15 +1,16 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <h1>NEXUS4</h1>
+  <PantallaPrincipal msg="Welcome to Your Vue.js App"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import PantallaPrincipal from './components/PantallaPrincipal.vue' 
+
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    PantallaPrincipal
   }
 }
 </script>

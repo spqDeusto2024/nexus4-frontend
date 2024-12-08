@@ -1,12 +1,13 @@
-version: "3.8"
-
 services:
   vue_app:
-    build: .
+    platform: linux/amd64 # Mueve platform al nivel del servicio
+    build:
+      context: . # Especifica el contexto de construcción
+      dockerfile: Dockerfile # Define el archivo Dockerfile que se usará
     ports:
-      - "8080:80"
-    container_name: nexus4-frontend
+      - "8080:80" # Mantén tus puertos
     volumes:
-      - ./dist:/usr/share/nginx/html:cached
-    stdin_open: true
-    tty: true
+      - .:/app # Mantén los volúmenes si son necesarios
+    environment:
+      - NODE_ENV=development # Mantén las variables de entorno
+    container_name: vue_app_container # Mantén el nombre del contenedor si lo necesitas
