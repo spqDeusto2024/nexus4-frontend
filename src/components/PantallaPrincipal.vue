@@ -191,6 +191,59 @@
         <button type="submit">Actualizar Estancia</button>
       </form>
     </div>
+
+    <h1>Gestión de Empleos</h1>
+    <button @click="mostrarFormularioCrearEmpleo = true">Crear Empleo</button>
+
+    <table>
+      <caption>Empleos</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Empleo</th>
+          <th>Edad Mínima</th>
+          <th>ID Estancia</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="empleo in empleos" :key="empleo.id">
+          <td>{{ empleo.id }}</td>
+          <td>{{ empleo.empleo }}</td>
+          <td>{{ empleo.edad_minima }}</td>
+          <td>{{ empleo.id_estancia }}</td>
+          <td>
+            <button @click="eliminarEmpleo(empleo.id)">Eliminar</button>
+            <button @click="editarEmpleo(empleo)">Modificar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div v-if="mostrarFormularioCrearEmpleo">
+      <h3>Crear Empleo</h3>
+      <form @submit.prevent="crearEmpleo">
+        <label for="empleo">Empleo:</label>
+        <input v-model="nuevoEmpleo.empleo" id="empleo" type="text" />
+        <label for="edad_minima">Edad Mínima:</label>
+        <input v-model="nuevoEmpleo.edad_minima" id="edad_minima" type="number" />
+        <label for="id_estancia">ID Estancia:</label>
+        <input v-model="nuevoEmpleo.id_estancia" id="id_estancia" type="number" />
+        <button type="submit">Añadir Empleo</button>
+      </form>
+    </div>
+    <div v-if="empleoParaEditar">
+      <h3>Modificar Empleo</h3>
+      <form @submit.prevent="actualizarEmpleo">
+        <label for="empleo">Empleo:</label>
+        <input v-model="empleoParaEditar.empleo" id="empleo" type="text" />
+        <label for="edad_minima">Edad Mínima:</label>
+        <input v-model="empleoParaEditar.edad_minima" id="edad_minima" type="number" />
+        <label for="id_estancia">ID Estancia:</label>
+        <input v-model="empleoParaEditar.id_estancia" id="id_estancia" type="number" />
+        <button type="submit">Actualizar Empleo</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -206,7 +259,8 @@ export default {
       mostrarFormularioCrearFamilia: false,
       familiaParaEditar: null, // Familia seleccionada para editar
       inquilinos: [], // Lista de inquilinos
-      nuevoInquilino: {
+      nuevoInquilino: 
+      {
         nombre: "",
         categoria: "",
         nacimiento: "",
@@ -219,7 +273,8 @@ export default {
       mostrarFormularioCrearInquilino: false,
       inquilinoParaEditar: null, // Inquilino seleccionado para editar
       estancias: [], // Lista de estancias
-      nuevaEstancia: {
+      nuevaEstancia: 
+      {
         nombre: "",
         categoria: "",
         personas_actuales: 0,
@@ -227,13 +282,22 @@ export default {
         recurso_id: 0
       },
       mostrarFormularioCrearEstancia: false,
-      estanciaParaEditar: null // Estancia seleccionada para editar
-    };
+      estanciaParaEditar: null, // Estancia seleccionada para editar
+      empleos: [], // Lista de empleos
+      nuevoEmpleo: {
+        empleo: "",
+        edad_minima: 0,
+        id_estancia: 0
+      },
+      mostrarFormularioCrearEmpleo: false,
+      empleoParaEditar: null // Empleo seleccionado para editar
+        };
   },
   mounted() {
     this.obtenerFamilias();
     this.obtenerInquilinos();
     this.obtenerEstancias();
+    this.obtenerEmpleos();
   },
   methods: {
     async obtenerFamilias() {
@@ -376,10 +440,58 @@ export default {
       } catch (error) {
         console.error('Error al actualizar la estancia:', error);
       }
+    },
+    async obtenerEmpleos() {
+    try {
+      const response = await axios.get("http://localhost:8000/empleo/get_all");
+      console.log("Datos obtenidos:", response.data); // Verifica los datos obtenidos
+      this.empleos = response.data;
+    } catch (error) {
+      console.error("Error al obtener los empleos:", error);
+    }
+  },
+  async crearEmpleo() {
+    try {
+      const response = await axios.post("http://localhost:8000/empleo/create", this.nuevoEmpleo);
+      this.empleos.push(response.data);
+      this.nuevoEmpleo = {
+        empleo: "",
+        edad_minima: 0,
+        id_estancia: 0,
+      };
+      this.mostrarFormularioCrearEmpleo = false;
+    } catch (error) {
+      console.error("Error al crear el empleo:", error);
+    }
+  },
+  async eliminarEmpleo(id) {
+    try {
+      await axios.delete(`http://localhost:8000/empleo/delete/${id}`);
+      this.empleos = this.empleos.filter(empleo => empleo.id !== id);
+    } catch (error) {
+      console.error("Error al eliminar el empleo:", error);
+    }
+  },
+  editarEmpleo(empleo) {
+    this.empleoParaEditar = { ...empleo };
+  },
+  async actualizarEmpleo() {
+    try {
+      const response = await axios.put(`http://localhost:8000/empleo/update/${this.empleoParaEditar.id}`, this.empleoParaEditar);
+      const index = this.empleos.findIndex(empleo => empleo.id === this.empleoParaEditar.id);
+      this.$set(this.empleos, index, response.data);
+      this.empleoParaEditar = {
+        empleo: "",
+        edad_minima: 0,
+        id_estancia: 0,
+      };
+    } catch (error) {
+      console.error("Error al actualizar el empleo:", error);
     }
   }
-};
-</script>
+    }
+  };
+  </script>
 
 <style scoped>
 .hello {
