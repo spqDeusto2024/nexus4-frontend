@@ -1,27 +1,24 @@
 <template>
-  <h1>NEXUS4</h1>
-  <PantallaPrincipal msg="Welcome to Your Vue.js App"/>
+  <DashboardPage />
 </template>
 
 <script>
-import PantallaPrincipal from './components/PantallaPrincipal.vue' 
-
-
+import DashboardPage from './components/DashboardPage.vue'
 export default {
   name: 'App',
   components: {
-    PantallaPrincipal
+    DashboardPage
   }
 }
 </script>
 
 <style>
+/* Opcional: Asegúrate que #app ocupe todo el espacio */
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  min-height: 100vh;
+  width: 100%;
+  background: #000;
+  margin: 0;
+  padding: 0;
 }
 </style>
