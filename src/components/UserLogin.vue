@@ -66,7 +66,7 @@ export default {
           axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
 
           // Redirigir al usuario a la página principal
-          this.$router.push({ name: 'PantallaPrincipal' });
+          this.$router.push({ name: 'Dashboard' });
         } else {
           // Mostrar mensaje de error si no se recibió el token
           alert('Error en la autenticación. Por favor, intenta nuevamente.');

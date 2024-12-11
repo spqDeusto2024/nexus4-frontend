@@ -109,7 +109,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: #000;
+    background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
     color: #fff;
     font-family: 'Open Sans', sans-serif;
   }
