@@ -8,7 +8,6 @@
         <router-link to="/dashboard/inquilinos">Inquilinos</router-link>
         <router-link to="/dashboard/familias">Familias</router-link>
         <router-link to="/dashboard/recursos">Recursos</router-link>
-        <router-link to="/dashboard/empleos">Empleos</router-link>
         </nav>
         <div class="logout">
           <router-link to="/">Logout</router-link>
@@ -16,45 +15,57 @@
       </header>
   
       <div class="content">
-        <h1 class="main-title">Gestión de Familias</h1>
-        <button @click="mostrarFormularioCrearFamilia = true" class="btn">Crear Familia</button>
+        <h1 class="main-title">Gestión de Empleos</h1>
+        <button @click="mostrarFormularioCrearEmpleo = true" class="btn">Crear Empleo</button>
   
         <table>
-          <caption>Familias</caption>
+          <caption>Empleos</caption>
           <thead>
             <tr>
               <th>ID</th>
-              <th>Apellido</th>
+              <th>Empleo</th>
+              <th>Edad Mínima</th>
+              <th>ID Estancia</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="familia in familias" :key="familia.id">
-              <td>{{ familia.id }}</td>
-              <td>{{ familia.apellido }}</td>
+            <tr v-for="empleo in empleos" :key="empleo.id">
+              <td>{{ empleo.id }}</td>
+              <td>{{ empleo.empleo }}</td>
+              <td>{{ empleo.edad_minima }}</td>
+              <td>{{ empleo.id_estancia }}</td>
               <td>
-                <button @click="eliminarFamilia(familia.id)" class="btn btn-danger">Eliminar</button>
-                <button @click="editarFamilia(familia)" class="btn btn-primary">Modificar</button>
+                <button @click="eliminarEmpleo(empleo.id)" class="btn btn-danger">Eliminar</button>
+                <button @click="editarEmpleo(empleo)" class="btn btn-primary">Modificar</button>
               </td>
             </tr>
           </tbody>
         </table>
   
-        <div v-if="mostrarFormularioCrearFamilia">
-          <h3>Crear Familia</h3>
-          <form @submit.prevent="crearFamilia">
-            <label for="apellido">Apellido:</label>
-            <input v-model="nuevoApellido" id="apellido" type="text" />
-            <button type="submit" class="btn btn-success">Añadir Familia</button>
+        <div v-if="mostrarFormularioCrearEmpleo">
+          <h3>Crear Empleo</h3>
+          <form @submit.prevent="crearEmpleo">
+            <label for="empleo">Empleo:</label>
+            <input v-model="nuevoEmpleo.empleo" id="empleo" type="text" />
+            <label for="edad_minima">Edad Mínima:</label>
+            <input v-model="nuevoEmpleo.edad_minima" id="edad_minima" type="number" />
+            <label for="id_estancia">ID Estancia:</label>
+            <input v-model="nuevoEmpleo.id_estancia" id="id_estancia" type="number" />
+            <button type="submit" class="btn btn-success">Añadir Empleo</button>
           </form>
         </div>
   
-        <div v-if="familiaParaEditar">
-          <h3>Modificar Familia</h3>
-          <form @submit.prevent="actualizarFamilia">
-            <label for="apellido">Apellido:</label>
-            <input v-model="familiaParaEditar.apellido" id="apellido" type="text" />
-            <button type="submit" class="btn btn-success">Actualizar Familia</button>
+        <div v-if="empleoParaEditar">
+          <h3>Modificar Empleo</h3>
+          <form @submit.prevent="actualizarEmpleo">
+            <label for="empleo">Empleo:</label>
+            <input v-model="empleoParaEditar.empleo" id="empleo" type="text" />
+            <label for="edad_minima">Edad Mínima:</label>
+            <input v-model="empleoParaEditar.edad_minima" id="edad_minima" type="number" />
+            <label for="id_estancia">ID Estancia:</label>
+            <input v-model="empleoParaEditar.id_estancia" id="id_estancia" type="number" />
+            <button type="submit" class="btn btn-success">Actualizar Empleo</button>
           </form>
         </div>
       </div>
@@ -62,64 +73,20 @@
   </template>
   
   <script>
-  import axios from "axios";
-  
   export default {
-    name: 'FamiliasComponent',
+    name: 'EmpleosComponent',
     data() {
       return {
-        familias: [], // Lista de familias
-        nuevoApellido: "", // Campo para el nuevo apellido
-        mostrarFormularioCrearFamilia: false,
-        familiaParaEditar: null, // Familia seleccionada para editar
+        empleos: [], // Lista de empleos
+        nuevoEmpleo: {
+          empleo: "",
+          edad_minima: 0,
+          id_estancia: 0,
+        },
+        mostrarFormularioCrearEmpleo: false,
+        empleoParaEditar: null, // Empleo seleccionado para editar
       };
     },
-    mounted() {
-      this.obtenerFamilias();
-    },
-    methods: {
-      async obtenerFamilias() {
-        try {
-          const response = await axios.get("http://localhost:8000/familia/get_all");
-          console.log("Datos obtenidos:", response.data); // Verifica los datos obtenidos
-          this.familias = response.data;
-        } catch (error) {
-          console.error("Error al obtener las familias:", error);
-        }
-      },
-      async crearFamilia() {
-        try {
-          const nuevaFamilia = { apellido: this.nuevoApellido };
-          const response = await axios.post("http://localhost:8000/familia/create", nuevaFamilia);
-          this.familias.push(response.data);
-          this.nuevoApellido = "";
-          this.mostrarFormularioCrearFamilia = false;
-        } catch (error) {
-          console.error("Error al crear la familia:", error);
-        }
-      },
-      async eliminarFamilia(id) {
-        try {
-          await axios.delete(`http://localhost:8000/familia/delete/${id}`);
-          this.familias = this.familias.filter(familia => familia.id !== id);
-        } catch (error) {
-          console.error("Error al eliminar la familia:", error);
-        }
-      },
-      editarFamilia(familia) {
-        this.familiaParaEditar = { ...familia };
-      },
-      async actualizarFamilia() {
-        try {
-          const response = await axios.put(`http://localhost:8000/familia/update/${this.familiaParaEditar.id}`, this.familiaParaEditar);
-          const index = this.familias.findIndex(familia => familia.id === this.familiaParaEditar.id);
-          this.$set(this.familias, index, response.data);
-          this.familiaParaEditar = null;
-        } catch (error) {
-          console.error("Error al actualizar la familia:", error);
-        }
-      },
-    }
   };
   </script>
   

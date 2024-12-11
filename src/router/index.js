@@ -7,6 +7,7 @@ import Familias from '../components/Familias.vue';
 import Estancias from '@/components/Estancias.vue';
 import Inquilinos from '@/components/Inquilinos.vue';
 import Recursos from '@/components/Recursos.vue';
+import Empleos from  '@/components/Empleos.vue';
 
 
 const routes = [
@@ -49,6 +50,12 @@ const routes = [
     path: '/dashboard/recursos', // Añade la ruta para Familia
     name: 'Recursos',
     component: Recursos,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/dashboard/empleos', // Añade la ruta para Familia
+    name: 'Empleos',
+    component: Empleos,
     meta: { requiresAuth: true },
   },
   {

@@ -5,9 +5,10 @@
       <nav class="menu">
         <router-link to="/dashboard">Home</router-link>
         <router-link to="/dashboard/estancias">Estancias</router-link>
-        <router-link to="/inquilinos">Inquilinos</router-link>
+        <router-link to="/dashboard/inquilinos">Inquilinos</router-link>
         <router-link to="/dashboard/familias">Familias</router-link>
-        <router-link to="/recursos">Recursos</router-link>
+        <router-link to="/dashboard/recursos">Recursos</router-link>
+        <router-link to="/dashboard/empleos">Empleos</router-link>
       </nav>
       <div class="logout">
         <router-link to="/">Logout</router-link>
@@ -248,6 +249,7 @@ export default {
   padding: 80px 20px 20px;
   box-sizing: border-box;
   margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
+  overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
 }
 
 .main-title {
