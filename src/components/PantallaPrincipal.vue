@@ -244,6 +244,65 @@
         <button type="submit">Actualizar Empleo</button>
       </form>
     </div>
+    <h1>Gestión de Recursos</h1>
+    <button @click="mostrarFormularioCrearRecurso = true">Crear Recurso</button>
+
+    <table>
+      <caption>Recursos</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Capacidad Mínima</th>
+          <th>Capacidad Máxima</th>
+          <th>Capacidad Actual</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="recurso in recursos" :key="recurso.id">
+          <td>{{ recurso.id }}</td>
+          <td>{{ recurso.nombre }}</td>
+          <td>{{ recurso.capacidad_min }}</td>
+          <td>{{ recurso.capacidad_max }}</td>
+          <td>{{ recurso.capacidad_actual }}</td>
+          <td>
+            <button @click="eliminarRecurso(recurso.id)">Eliminar</button>
+            <button @click="editarRecurso(recurso)">Modificar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div v-if="mostrarFormularioCrearRecurso">
+      <h3>Crear Recurso</h3>
+      <form @submit.prevent="crearRecurso">
+        <label for="nombre">Nombre:</label>
+        <input v-model="nuevoRecurso.nombre" id="nombre" type="text" />
+        <label for="capacidad_min">Capacidad Mínima:</label>
+        <input v-model="nuevoRecurso.capacidad_min" id="capacidad_min" type="number" />
+        <label for="capacidad_max">Capacidad Máxima:</label>
+        <input v-model="nuevoRecurso.capacidad_max" id="capacidad_max" type="number" />
+        <label for="capacidad_actual">Capacidad Actual:</label>
+        <input v-model="nuevoRecurso.capacidad_actual" id="capacidad_actual" type="number" />
+        <button type="submit">Añadir Recurso</button>
+      </form>
+    </div>
+
+    <div v-if="recursoParaEditar">
+      <h3>Modificar Recurso</h3>
+      <form @submit.prevent="actualizarRecurso">
+        <label for="nombre">Nombre:</label>
+        <input v-model="recursoParaEditar.nombre" id="nombre" type="text" />
+        <label for="capacidad_min">Capacidad Mínima:</label>
+        <input v-model="recursoParaEditar.capacidad_min" id="capacidad_min" type="number" />
+        <label for="capacidad_max">Capacidad Máxima:</label>
+        <input v-model="recursoParaEditar.capacidad_max" id="capacidad_max" type="number" />
+        <label for="capacidad_actual">Capacidad Actual:</label>
+        <input v-model="recursoParaEditar.capacidad_actual" id="capacidad_actual" type="number" />
+        <button type="submit">Actualizar Recurso</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -290,7 +349,16 @@ export default {
         id_estancia: 0
       },
       mostrarFormularioCrearEmpleo: false,
-      empleoParaEditar: null // Empleo seleccionado para editar
+      empleoParaEditar: null, // Empleo seleccionado para editar
+      recursos: [],
+      nuevoRecurso: {
+        nombre: '',
+        capacidad_min: 0,
+        capacidad_max: 0,
+        capacidad_actual: 0
+      },
+      mostrarFormularioCrearRecurso: false,
+      recursoParaEditar: null
         };
   },
   mounted() {
@@ -298,6 +366,7 @@ export default {
     this.obtenerInquilinos();
     this.obtenerEstancias();
     this.obtenerEmpleos();
+    this.obtenerRecursos();
   },
   methods: {
     async obtenerFamilias() {
@@ -488,7 +557,51 @@ export default {
     } catch (error) {
       console.error("Error al actualizar el empleo:", error);
     }
-  }
+  },
+  async obtenerRecursos() {
+      try {
+        const response = await axios.get("http://localhost:8000/recurso/get_all");
+        this.recursos = response.data;
+      } catch (error) {
+        console.error("Error al obtener los recursos:", error);
+      }
+    },
+    async crearRecurso() {
+      try {
+        const response = await axios.post("http://localhost:8000/recurso/create", this.nuevoRecurso);
+        this.recursos.push(response.data);
+        this.nuevoRecurso = {
+          nombre: "",
+          capacidad_min: 0,
+          capacidad_max: 0,
+          capacidad_actual: 0
+        };
+        this.mostrarFormularioCrearRecurso = false;
+      } catch (error) {
+        console.error("Error al crear el recurso:", error);
+      }
+    },
+    async eliminarRecurso(id) {
+      try {
+        await axios.delete(`http://localhost:8000/recurso/delete/${id}`);
+        this.recursos = this.recursos.filter(recurso => recurso.id !== id);
+      } catch (error) {
+        console.error("Error al eliminar el recurso:", error);
+      }
+    },
+    editarRecurso(recurso) {
+      this.recursoParaEditar = { ...recurso };
+    },
+    async actualizarRecurso() {
+      try {
+        const response = await axios.put(`http://localhost:8000/recurso/update/${this.recursoParaEditar.id}`, this.recursoParaEditar);
+        const index = this.recursos.findIndex(recurso => recurso.id === this.recursoParaEditar.id);
+        this.$set(this.recursos, index, response.data);
+        this.recursoParaEditar = null;
+      } catch (error) {
+        console.error("Error al actualizar el recurso:", error);
+      }
+    }
     }
   };
   </script>
