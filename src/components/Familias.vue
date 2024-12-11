@@ -1,127 +1,178 @@
 <template>
-    <div class="dashboard-container">
-      <header class="top-bar">
-        <div class="brand">NEXUS4</div>
-        <nav class="menu">
+  <div class="dashboard-container">
+    <header class="top-bar">
+      <div class="brand">NEXUS4</div>
+      <nav class="menu">
         <router-link to="/dashboard">Home</router-link>
         <router-link to="/dashboard/estancias">Estancias</router-link>
         <router-link to="/dashboard/inquilinos">Inquilinos</router-link>
         <router-link to="/dashboard/familias">Familias</router-link>
         <router-link to="/dashboard/recursos">Recursos</router-link>
         <router-link to="/dashboard/empleos">Empleos</router-link>
-        </nav>
-        <div class="logout">
-          <router-link to="/">Logout</router-link>
+      </nav>
+      <div class="logout">
+        <router-link to="/">Logout</router-link>
+      </div>
+    </header>
+
+    <div class="content">
+      <h1 class="main-title">Gestión de Familias</h1>
+      <div class="layout">
+        <!-- Contenedor izquierdo -->
+        <div class="left-container">
+          <!-- White Box para crear familia -->
+          <div class="white-box">
+            <h3>Crear Familia</h3>
+            <form @submit.prevent="crearFamilia">
+              <label for="apellido"></label>
+              <input
+                v-model="nuevoApellido"
+                id="apellido"
+                type="text"
+                placeholder="Ingrese apellido"
+              />
+              <button type="submit" class="btn btn-primary">Añadir Familia</button>
+            </form>
+          </div>
+
+          <!-- White Box para buscar -->
+          <div class="white-box">
+            <h3>Buscador</h3>
+            <form @submit.prevent="filtrarFamilias">
+              <label for="busqueda"></label>
+              <input
+                v-model="busqueda"
+                id="busqueda"
+                type="text"
+                placeholder="Ingrese apellido a buscar"
+              />
+              <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+          </div>
         </div>
-      </header>
-  
-      <div class="content">
-        <h1 class="main-title">Gestión de Familias</h1>
-        <button @click="mostrarFormularioCrearFamilia = true" class="btn">Crear Familia</button>
-  
-        <table>
-          <caption>Familias</caption>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Apellido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="familia in familias" :key="familia.id">
-              <td>{{ familia.id }}</td>
-              <td>{{ familia.apellido }}</td>
-              <td>
-                <button @click="eliminarFamilia(familia.id)" class="btn btn-danger">Eliminar</button>
-                <button @click="editarFamilia(familia)" class="btn btn-primary">Modificar</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-  
-        <div v-if="mostrarFormularioCrearFamilia">
-          <h3>Crear Familia</h3>
-          <form @submit.prevent="crearFamilia">
-            <label for="apellido">Apellido:</label>
-            <input v-model="nuevoApellido" id="apellido" type="text" />
-            <button type="submit" class="btn btn-success">Añadir Familia</button>
-          </form>
-        </div>
-  
-        <div v-if="familiaParaEditar">
-          <h3>Modificar Familia</h3>
-          <form @submit.prevent="actualizarFamilia">
-            <label for="apellido">Apellido:</label>
-            <input v-model="familiaParaEditar.apellido" id="apellido" type="text" />
-            <button type="submit" class="btn btn-success">Actualizar Familia</button>
-          </form>
+
+        <!-- Contenedor derecho: Tabla -->
+        <div class="table-container">
+          <table class="styled-table">
+            <caption>Familias</caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Apellido</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Cambia familias a familiasFiltradas -->
+              <tr v-for="familia in familiasFiltradas" :key="familia.id">
+                <td class="centered">{{ familia.id }}</td>
+                <td class="centered">{{ familia.apellido }}</td>
+                <td class="centered">
+                  <button
+                    @click="eliminarFamilia(familia.id)"
+                    class="btn btn-danger"
+                  >
+                    Eliminar
+                  </button>
+                  <button
+                    @click="editarFamilia(familia)"
+                    class="btn btn-primary"
+                  >
+                    Modificar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import axios from "axios";
-  
-  export default {
-    name: 'FamiliasComponent',
-    data() {
-      return {
-        familias: [], // Lista de familias
-        nuevoApellido: "", // Campo para el nuevo apellido
-        mostrarFormularioCrearFamilia: false,
-        familiaParaEditar: null, // Familia seleccionada para editar
-      };
+  </div>
+</template>
+<script>
+import axios from "axios";
+
+export default {
+  name: "FamiliasComponent",
+  data() {
+    return {
+      familias: [], // Lista completa de familias
+      familiasFiltradas: [], // Lista de familias que se muestran (originalmente todas)
+      busqueda: "", // Texto ingresado en el buscador
+      nuevoApellido: "", // Campo para el nuevo apellido
+      mostrarFormularioCrearFamilia: false,
+      familiaParaEditar: null, // Familia seleccionada para editar
+    };
+  },
+  mounted() {
+    this.obtenerFamilias();
+  },
+  methods: {
+    async obtenerFamilias() {
+      try {
+        const response = await axios.get("http://localhost:8000/familia/get_all");
+        this.familias = response.data;
+        this.familiasFiltradas = [...this.familias]; // Inicialmente muestra todas las familias
+      } catch (error) {
+        console.error("Error al obtener las familias:", error);
+      }
     },
-    mounted() {
-      this.obtenerFamilias();
+    filtrarFamilias() {
+      if (!this.busqueda) {
+        // Si no hay texto en el buscador, muestra todas las familias
+        this.familiasFiltradas = [...this.familias];
+      } else {
+        // Filtra las familias cuyo apellido contiene el texto de búsqueda
+        this.familiasFiltradas = this.familias.filter((familia) =>
+          familia.apellido.toLowerCase().includes(this.busqueda.toLowerCase())
+        );
+      }
     },
-    methods: {
-      async obtenerFamilias() {
-        try {
-          const response = await axios.get("http://localhost:8000/familia/get_all");
-          console.log("Datos obtenidos:", response.data); // Verifica los datos obtenidos
-          this.familias = response.data;
-        } catch (error) {
-          console.error("Error al obtener las familias:", error);
-        }
-      },
-      async crearFamilia() {
-        try {
-          const nuevaFamilia = { apellido: this.nuevoApellido };
-          const response = await axios.post("http://localhost:8000/familia/create", nuevaFamilia);
-          this.familias.push(response.data);
-          this.nuevoApellido = "";
-          this.mostrarFormularioCrearFamilia = false;
-        } catch (error) {
-          console.error("Error al crear la familia:", error);
-        }
-      },
-      async eliminarFamilia(id) {
-        try {
-          await axios.delete(`http://localhost:8000/familia/delete/${id}`);
-          this.familias = this.familias.filter(familia => familia.id !== id);
-        } catch (error) {
-          console.error("Error al eliminar la familia:", error);
-        }
-      },
-      editarFamilia(familia) {
-        this.familiaParaEditar = { ...familia };
-      },
-      async actualizarFamilia() {
-        try {
-          const response = await axios.put(`http://localhost:8000/familia/update/${this.familiaParaEditar.id}`, this.familiaParaEditar);
-          const index = this.familias.findIndex(familia => familia.id === this.familiaParaEditar.id);
-          this.$set(this.familias, index, response.data);
-          this.familiaParaEditar = null;
-        } catch (error) {
-          console.error("Error al actualizar la familia:", error);
-        }
-      },
-    }
-  };
-  </script>
+    async crearFamilia() {
+      try {
+        const nuevaFamilia = { apellido: this.nuevoApellido };
+        const response = await axios.post("http://localhost:8000/familia/create", nuevaFamilia);
+        this.familias.push(response.data);
+        this.familiasFiltradas.push(response.data); // Agrega la nueva familia también a la lista filtrada
+        this.nuevoApellido = "";
+        this.mostrarFormularioCrearFamilia = false;
+      } catch (error) {
+        console.error("Error al crear la familia:", error);
+      }
+    },
+    async eliminarFamilia(id) {
+      try {
+        await axios.delete(`http://localhost:8000/familia/delete/${id}`);
+        this.familias = this.familias.filter((familia) => familia.id !== id);
+        this.filtrarFamilias(); // Vuelve a aplicar el filtro después de eliminar
+      } catch (error) {
+        console.error("Error al eliminar la familia:", error);
+      }
+    },
+    editarFamilia(familia) {
+      this.familiaParaEditar = { ...familia };
+    },
+    async actualizarFamilia() {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/familia/update/${this.familiaParaEditar.id}`,
+          this.familiaParaEditar
+        );
+        const index = this.familias.findIndex(
+          (familia) => familia.id === this.familiaParaEditar.id
+        );
+        this.$set(this.familias, index, response.data);
+        this.filtrarFamilias(); // Vuelve a aplicar el filtro después de actualizar
+        this.familiaParaEditar = null;
+      } catch (error) {
+        console.error("Error al actualizar la familia:", error);
+      }
+    },
+  },
+};
+</script>
+
+
   
   <style scoped>
   .dashboard-container {
@@ -192,82 +243,168 @@
     background-color: #400;
   }
   
-  .content {
-    flex: 1;
-    padding: 80px 20px 20px;
-    box-sizing: border-box;
-    margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
-  }
-  
-  .main-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 20px;
-    color: #fff;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  
-  th {
-    background-color: #333;
-    color: #fff;
-    font-weight: bold;
-    border-bottom: 2px solid #444;
-  }
-  
-  button {
-    margin: 5px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s, box-shadow 0.3s;
-  }
-  
-  button.btn {
-    background-color: #4caf50;
-    color: #fff;
-  }
-  
-  button.btn:hover {
-    background-color: #45a049;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  button.btn-danger {
-    background-color: #f44336;
-  }
-  
-  button.btn-danger:hover {
-    background-color: #e53935;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  button.btn-primary {
-    background-color: #2196f3;
-  }
-  
-  button.btn-primary:hover {
-    background-color: #1e88e5;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  button.btn-success {
-    background-color: #4caf50;
-  }
-  
-  button.btn-success:hover {
-    background-color: #45a049;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  </style>
+  .dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+}
+
+.content {
+  padding: 80px 20px;
+}
+
+.main-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+/* Layout principal */
+.layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Contenedor izquierdo */
+.left-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 30%;
+}
+
+/* Contenedor derecho: Tabla */
+.table-container {
+  width: 65%;
+}
+
+/* Caja blanca (Crear y Buscar) */
+.white-box {
+  background-color: #222;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  text-align: center;
+}
+
+.white-box h3 {
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+.white-box input {
+  width: 90%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+}
+
+.white-box button {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.white-box .btn-primary {
+  background-color: #CFA04A;
+  color: white;
+}
+
+.white-box .btn-primary:hover {
+  background-color: #CFA04A;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  background-color: #2c2c2c;
+  color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.styled-table caption {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+  text-align: left;
+  color: #ddd;
+}
+
+.styled-table thead tr {
+  background-color: #444;
+  color: #fff;
+  text-align: center;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 15px 20px;
+  text-align: center; /* Centra el contenido horizontalmente */
+  vertical-align: middle; /* Centra el contenido verticalmente */
+}
+
+.styled-table tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.styled-table tbody tr:nth-child(even) {
+  background-color: #3a3a3a;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #555; /* Efecto hover */
+}
+
+/* Botones de acciones */
+.btn {
+  display: inline-block;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-primary {
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #1e88e5;
+  transform: scale(1.05); 
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #e53935;
+  transform: scale(1.05); 
+}
+
+/* Centrado del contenido */
+.centered {
+  text-align: center;
+  vertical-align: middle;
+}
+
+</style>
