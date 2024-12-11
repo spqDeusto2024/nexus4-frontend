@@ -8,6 +8,7 @@
         <router-link to="/dashboard/inquilinos">Inquilinos</router-link>
         <router-link to="/dashboard/familias">Familias</router-link>
         <router-link to="/dashboard/recursos">Recursos</router-link>
+        <router-link to="/dashboard/empleos">Empleos</router-link>
         </nav>
         <div class="logout">
           <router-link to="/">Logout</router-link>
