@@ -303,7 +303,48 @@
         <button type="submit">Actualizar Recurso</button>
       </form>
     </div>
-  </div>
+    <h1>Gestión de Roles</h1>
+<button @click="mostrarFormularioCrearRole = true">Crear Role</button>
+
+<table>
+  <caption>Roles</caption>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="role in roles" :key="role.id">
+      <td>{{ role.id }}</td>
+      <td>{{ role.nombre }}</td>
+      <td>
+        <button @click="eliminarRole(role.id)">Eliminar</button>
+        <button @click="editarRole(role)">Modificar</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div v-if="mostrarFormularioCrearRole">
+  <h3>Crear Role</h3>
+  <form @submit.prevent="crearRole">
+    <label for="nombre">Nombre:</label>
+    <input v-model="nuevoRole.nombre" id="nombre" type="text" />
+    <button type="submit">Añadir Role</button>
+  </form>
+</div>
+
+<div v-if="roleParaEditar">
+  <h3>Modificar Role</h3>
+  <form @submit.prevent="actualizarRole">
+    <label for="nombre">Nombre:</label>
+    <input v-model="roleParaEditar.nombre" id="nombre" type="text" />
+    <button type="submit">Actualizar Role</button>
+  </form>
+</div>
+</div>
 </template>
 
 <script>
@@ -358,8 +399,14 @@ export default {
         capacidad_actual: 0
       },
       mostrarFormularioCrearRecurso: false,
-      recursoParaEditar: null
-        };
+      recursoParaEditar: null,
+      roles: [], // Lista de roles
+      nuevoRole: {
+      nombre: "",
+      },
+      mostrarFormularioCrearRole: false,
+      roleParaEditar: null, 
+      };
   },
   mounted() {
     this.obtenerFamilias();
@@ -367,6 +414,8 @@ export default {
     this.obtenerEstancias();
     this.obtenerEmpleos();
     this.obtenerRecursos();
+    this.obtenerRoles();
+
   },
   methods: {
     async obtenerFamilias() {
@@ -601,7 +650,48 @@ export default {
       } catch (error) {
         console.error("Error al actualizar el recurso:", error);
       }
+    },
+      async obtenerRoles() {
+    try {
+      const response = await axios.get("http://localhost:8000/roles/get_all");
+      this.roles = response.data;
+    } catch (error) {
+      console.error("Error al obtener los roles:", error);
     }
+  },
+  async crearRole() {
+    try {
+      const response = await axios.post("http://localhost:8000/roles/create", this.nuevoRole);
+      this.roles.push(response.data);
+      this.nuevoRole = {
+        nombre: "",
+      };
+      this.mostrarFormularioCrearRole = false;
+    } catch (error) {
+      console.error("Error al crear el role:", error);
+    }
+  },
+  async eliminarRole(id) {
+    try {
+      await axios.delete(`http://localhost:8000/roles/delete/${id}`);
+      this.roles = this.roles.filter(role => role.id !== id);
+    } catch (error) {
+      console.error("Error al eliminar el role:", error);
+    }
+  },
+  editarRole(role) {
+    this.roleParaEditar = { ...role };
+  },
+  async actualizarRole() {
+    try {
+      const response = await axios.put(`http://localhost:8000/roles/update/${this.roleParaEditar.id}`, this.roleParaEditar);
+      const index = this.roles.findIndex(role => role.id === this.roleParaEditar.id);
+      this.$set(this.roles, index, response.data);
+      this.roleParaEditar = null;
+    } catch (error) {
+      console.error("Error al actualizar el role:", error);
+    }
+  },
     }
   };
   </script>
