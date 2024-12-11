@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import UserLogin from '../components/UserLogin.vue';
+import CreateUsuario from '../components/CreateUsuario.vue';
 import PantallaPrincipal from '../components/PantallaPrincipal.vue';
 import DashboardPage from '../components/DashboardPage.vue';
 import Familias from '../components/Familias.vue';
