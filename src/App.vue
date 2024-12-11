@@ -1,18 +1,11 @@
 <template>
-  <h1>NEXUS4</h1>
-  <PantallaPrincipal msg="Welcome to Your Vue.js App"/>
+  <router-view></router-view>
 </template>
 
 <script>
-import PantallaPrincipal from './components/PantallaPrincipal.vue' 
-
-
 export default {
   name: 'App',
-  components: {
-    PantallaPrincipal
-  }
-}
+};
 </script>
 
 <style>
@@ -21,7 +14,8 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #ffffff;
   margin-top: 60px;
 }
+/* Puedes agregar estilos globales aquí */
 </style>
