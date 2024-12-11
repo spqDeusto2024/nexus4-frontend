@@ -27,7 +27,7 @@
         <button type="submit">Acceder</button>
       </form>
       <p class="register-link">
-        ¿No tienes usuario? <a href="#">Crea aquí tu usuario</a>.
+        ¿No tienes usuario? <router-link to="/crear-usuario">Crea aquí tu usuario</router-link>.
       </p>
     </div>
   </div>

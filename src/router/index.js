@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import UserLogin from '../components/UserLogin.vue';
 import PantallaPrincipal from '../components/PantallaPrincipal.vue';
 import DashboardPage from '../components/DashboardPage.vue';
+import CreateUsuario from '../components/CreateUsuario.vue';
 
 const routes = [
   {
@@ -28,6 +29,12 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     redirect: '/login', // Maneja rutas no definidas
+  },
+
+  {
+    path: '/crear-usuario',
+    name: 'CreateUsuario',
+    component: CreateUsuario,
   },
 ];
 
