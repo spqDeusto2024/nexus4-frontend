@@ -14,6 +14,7 @@ export default {
 #app {
   min-height: 100vh;
   width: 100%;
+  font-family: 'Roboto', sans-serif;
   background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
   margin: 0;
   padding: 0;
