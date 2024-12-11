@@ -182,7 +182,7 @@ export default {
   min-height: 100vh;
   background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
   color: #fff;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Roboto', sans-serif;
   overflow-y: auto; /* Permitir desplazamiento vertical */
 }
 
@@ -215,7 +215,7 @@ export default {
   color: #fff;
   text-decoration: none;
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 8px 16px;
   border-radius: 4px;
   transition: background-color 0.3s;
@@ -232,9 +232,9 @@ export default {
 .logout a {
   color: #fff;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
-  border: 1px solid #f00;
+  border: 1px solid #f2cf74;
   padding: 5px 10px;
   border-radius: 4px;
   transition: background-color 0.3s;
@@ -249,7 +249,9 @@ export default {
   padding: 80px 20px 20px;
   box-sizing: border-box;
   margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
+  max-height: calc(100vh - 60px); /* Ajusta 60px a la altura de tu encabezado */
   overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
+  overflow: auto;
 }
 
 .main-title {
@@ -284,12 +286,12 @@ export default {
 
 .box:hover {
   transform: scale(1.05);
-  border: 2px solid red;
+  border: 2px solid #f2cf74;
 }
 
 .label {
   font-size: 1.4rem;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 10px;
   color: #fff;
 }

@@ -156,7 +156,7 @@
     min-height: 100vh;
     background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
     color: #fff;
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
     overflow-y: auto; /* Permitir desplazamiento vertical */
   }
   
@@ -189,7 +189,7 @@
     color: #fff;
     text-decoration: none;
     font-size: 1.2rem;
-    font-weight: 600;
+    font-weight: 500;
     padding: 8px 16px;
     border-radius: 4px;
     transition: background-color 0.3s;
@@ -206,7 +206,7 @@
   .logout a {
     color: #fff;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     border: 1px solid #f00;
     padding: 5px 10px;
