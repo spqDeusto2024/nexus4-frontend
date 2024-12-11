@@ -19,7 +19,7 @@
       <h1 class="main-title">Panel de Control</h1>
       <div class="grid-container">
         <!-- Caja con 3 recursos y barras -->
-        <div class="box">
+        <div class="box" @click="goToRecursos">
           <div class="label">Agua</div>
           <div class="progress-bar-container">
             <div class="progress-bar" :style="{ width: '70%' }"></div>
@@ -40,13 +40,13 @@
         </div>
 
         <!-- Caja de estancias -->
-        <div class="box">
+        <div class="box" @click="goToEstancias">
           <div class="label">Estancias</div>
           <div class="value">{{ estancias }}</div>
         </div>
 
         <!-- Caja de inquilinos -->
-        <div class="box">
+        <div class="box" @click="goToInquilinos">
           <div class="label">Inquilinos</div>
           <div class="value">{{ inquilinos }}</div>
         </div>
@@ -64,13 +64,13 @@
         </div>
 
         <!-- Caja de Empleo disponibles -->
-        <div class="box">
+        <div class="box" @click="goToEmpleos">
           <div class="label">Empleos</div>
           <div class="value">{{ empleos }}</div>
         </div>
 
         <!-- Caja de familias -->
-        <div class="box">
+        <div class="box" @click="goToFamilias">
           <div class="label">Familias</div>
           <div class="value">{{ familias }}</div>
         </div>
@@ -172,6 +172,23 @@ export default {
       toggleAlarma,
     }
   },
+  methods: {
+    goToEstancias() {
+      this.$router.push({ name: 'Estancias' })
+    },
+    goToInquilinos() {
+      this.$router.push({ name: 'Inquilinos' })
+    },
+    goToFamilias() {
+      this.$router.push({ name: 'Familias' })
+    },
+    goToRecursos() {
+      this.$router.push({ name: 'Recursos' })
+    },
+    goToEmpleos() {
+      this.$router.push({ name: 'Empleos' })
+    },
+  }
 }
 </script>
 
