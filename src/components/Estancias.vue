@@ -28,7 +28,7 @@
             <th>Categoría</th>
             <th>Personas Actuales</th>
             <th>Capacidad Máxima</th>
-            <th>Recurso ID</th>
+            <th>Recurso</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -39,7 +39,7 @@
             <td>{{ estancia.categoria }}</td>
             <td>{{ estancia.personas_actuales }}</td>
             <td>{{ estancia.capacidad_max }}</td>
-            <td>{{ estancia.recurso_id }}</td>
+            <td>{{ getRecursoNombre(estancia.recurso_id) }}</td>
             <td>
               <button @click="eliminarEstancia(estancia.id)" class="btn btn-danger">Eliminar</button>
               <button @click="editarEstancia(estancia)" class="btn btn-primary">Modificar</button>
@@ -59,8 +59,13 @@
           <input v-model="nuevaEstancia.personas_actuales" id="personas_actuales" type="number" placeholder="N° Personas"/>
           <label for="capacidad_max">Capacidad Máxima:</label>
           <input v-model="nuevaEstancia.capacidad_max" id="capacidad_max" type="number" placeholder="Capacidad"/>
-          <label for="recurso_id">Recurso ID:</label>
-          <input v-model="nuevaEstancia.recurso_id" id="recurso_id" type="number" placeholder="ID Recurso"/>
+          <label for="recurso_id">Recurso:</label>
+          <select v-model="nuevaEstancia.recurso_id" id="recurso_id" required>
+            <option disabled value="">Seleccione un recurso</option>
+            <option v-for="recurso in recursos" :key="recurso.id" :value="recurso.id">
+              {{ recurso.nombre }}
+            </option>
+          </select>
           <button type="submit" class="btn btn-success">Añadir Estancia</button>
         </form>
       </div>
@@ -76,8 +81,13 @@
           <input v-model="estanciaParaEditar.personas_actuales" id="personas_actuales" type="number" placeholder="N° Personas"/>
           <label for="capacidad_max">Capacidad Máxima:</label>
           <input v-model="estanciaParaEditar.capacidad_max" id="capacidad_max" type="number" placeholder="Capacidad"/>
-          <label for="recurso_id">Recurso ID:</label>
-          <input v-model="estanciaParaEditar.recurso_id" id="recurso_id" type="number" placeholder="ID Recurso"/>
+          <label for="recurso_id">Recurso:</label>
+          <select v-model="estanciaParaEditar.recurso_id" id="recurso_id" required>
+            <option disabled value="">Seleccione un recurso</option>
+            <option v-for="recurso in recursos" :key="recurso.id" :value="recurso.id">
+              {{ recurso.nombre }}
+            </option>
+          </select>
           <button type="submit" class="btn btn-success">Actualizar Estancia</button>
         </form>
       </div>
@@ -93,6 +103,7 @@ name: 'EstanciasComponent',
 data() {
   return {
     estancias: [], // Lista de estancias
+    recursos: [], // Lista de recursos
     nuevaEstancia: {
       nombre: "",
       categoria: "",
@@ -106,6 +117,7 @@ data() {
 },
 mounted() {
   this.obtenerEstancias();
+  this.obtenerRecursos();
 },
 methods: {
   async obtenerEstancias() {
@@ -114,6 +126,14 @@ methods: {
       this.estancias = response.data;
     } catch (error) {
       console.error('Error al obtener las estancias:', error);
+    }
+  },
+  async obtenerRecursos() {
+    try {
+      const response = await axios.get("http://localhost:8000/recurso/get_all");
+      this.recursos = response.data;
+    } catch (error) {
+      console.error('Error al obtener los recursos:', error);
     }
   },
   async crearEstancia() {
@@ -136,6 +156,10 @@ methods: {
   },
   editarEstancia(estancia) {
     this.estanciaParaEditar = { ...estancia };
+  },
+  getRecursoNombre(id) {
+    const recurso = this.recursos.find(recurso => recurso.id === id);
+    return recurso ? recurso.nombre : 'No asignado';
   },
   async actualizarEstancia() {
     try {
@@ -167,6 +191,7 @@ color: #fff;
 height: 100%;
 width: 100%;
 overflow-x: hidden;
+overflow-y: auto;
 }
 
 .dashboard-container {
@@ -175,6 +200,7 @@ flex-direction: column;
 min-height: 100vh;
 backdrop-filter: blur(6px);
 box-sizing: border-box;
+overflow: auto;
 }
 
 /* Top bar */
@@ -243,7 +269,8 @@ box-shadow: 0 0 8px rgba(0,0,0,0.5);
 /* Content */
 .content {
 flex: 1;
-padding: 80px 20px 20px;
+padding: 20px;
+padding-bottom: 100px;
 margin-top: 60px;
 box-sizing: border-box;
 overflow-y: auto;
@@ -261,11 +288,32 @@ text-shadow: 0 0 10px rgba(0,0,0,0.6);
 table {
 width: 100%;
 border-collapse: collapse;
-margin-bottom: 30px;
+margin-bottom: 50px;
 background: #1a1a1a;
 border-radius: 8px;
 overflow: hidden;
 box-shadow: 0 0 20px rgba(0,0,0,0.5);
+word-wrap: break-word;
+padding-bottom: 100px;
+margin-bottom: 100px;
+}
+
+tbody {
+  max-height: 45vh; /* Limita la altura de la tabla */
+  overflow-y: auto; /* Agrega un scrollbar interno si es necesario */
+  display: block; /* Requerido para habilitar el scroll interno */
+}
+
+thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+th, td { 
+  width: 100px; /* Ancho de las celdas */
+  padding: 10px;
+  text-align: center;
 }
 
 caption {
@@ -353,6 +401,7 @@ box-shadow: 0 0 8px rgba(0,0,0,0.5);
   max-width: 400px;
   margin: auto; /* Centrará horizontalmente si no hay otras restricciones */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  overflow-y: auto;
   /*animation: fadeIn 0.6s ease-out;*/
 
   /* Para centrar vertical y horizontalmente 
@@ -370,8 +419,6 @@ box-shadow: 0 0 8px rgba(0,0,0,0.5);
   transform: translate(-50%, -50%);
   z-index: 1000;
 }
-
-
 
 .form-box h3 {
 font-weight: 700;
@@ -395,6 +442,7 @@ font-size: 0.95rem;
 
 .form input {
 width: 100%;
+box-sizing: border-box;
 padding: 12px;
 margin-bottom: 20px;
 border: none;
@@ -415,6 +463,21 @@ background: #262626;
 box-shadow: 0 0 4px #f2cf74;
 }
 
+/* Select */
+select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  background-color: #1e1e1e;
+  color: #ccc;
+}
+
+select:focus {
+  background: #262626;
+  box-shadow: 0 0 4px #f2cf74;
+}
+
 /* Animación de entrada */
 @keyframes fadeIn {
 from { 
@@ -425,5 +488,22 @@ to {
   opacity: 1; 
   transform: translateY(0); 
 }
+}
+
+/* Media Query para pantallas pequeñas */
+@media (max-width: 600px) {
+  table {
+    margin-bottom: 100px; /* Aumenta el espacio debajo de la tabla */
+  }
+
+  /* Opcional: Ajusta otros estilos para pantallas pequeñas */
+  .main-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .form-box {
+    max-width: 90%; /* Aumenta el ancho del formulario en pantallas pequeñas */
+  }
 }
 </style>
