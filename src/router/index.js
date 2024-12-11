@@ -2,7 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 import UserLogin from '../components/UserLogin.vue';
 import PantallaPrincipal from '../components/PantallaPrincipal.vue';
 import DashboardPage from '../components/DashboardPage.vue';
-import CreateUsuario from '../components/CreateUsuario.vue';
+import Familias from '../components/Familias.vue';
+import Estancias from '@/components/Estancias.vue';
+import Inquilinos from '@/components/Inquilinos.vue';
+import Recursos from '@/components/Recursos.vue';
+
 
 const routes = [
   {
@@ -20,6 +24,30 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: DashboardPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/dashboard/familias', // Añade la ruta para Familia
+    name: 'Familias',
+    component: Familias,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/dashboard/estancias', // Añade la ruta para Familia
+    name: 'Estancias',
+    component: Estancias,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/dashboard/inquilinos', // Añade la ruta para Familia
+    name: 'Inquilinos',
+    component: Inquilinos,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/dashboard/recursos', // Añade la ruta para Familia
+    name: 'Recursos',
+    component: Recursos,
     meta: { requiresAuth: true },
   },
   {
