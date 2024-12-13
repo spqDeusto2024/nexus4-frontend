@@ -240,11 +240,10 @@ export default {
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; /* Asegura que ocupa al menos el 100% de la altura de la ventana */
   background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
   color: #fff;
   font-family: 'Roboto', sans-serif;
-  overflow-y: auto; /* Permitir desplazamiento vertical */
 }
 
 .top-bar {
@@ -308,9 +307,10 @@ export default {
 .content {
   flex: 1;
   padding: 80px 20px;
-  margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
-  overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
+  margin-top: 60px; /* Evita que el contenido quede oculto detrás del encabezado fijo */
+  overflow-y: auto; /* Permite el desplazamiento vertical */
   box-sizing: border-box;
+  max-height: calc(100vh - 60px); /* Altura máxima basada en la altura de la ventana menos el header */
 }
 
 .main-title {
