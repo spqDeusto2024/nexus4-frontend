@@ -100,40 +100,42 @@
 
         <!-- Contenedor derecho: Tabla -->
         <div class="table-container">
-          <table class="styled-table">
-            <caption>Inquilinos</caption>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Categoria</th>
-                <th>Nacimiento</th>
-                <th>Muerte</th>
-                <th>Familia ID</th>
-                <th>Empleo ID</th>
-                <th>Roles ID</th>
-                <th>Estancia ID</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="inquilino in inquilinosFiltrados" :key="inquilino.id">
-                <td class="centered">{{ inquilino.id }}</td>
-                <td class="centered">{{ inquilino.nombre }}</td>
-                <td class="centered">{{ inquilino.categoria }}</td>
-                <td class="centered">{{ inquilino.nacimiento }}</td>
-                <td class="centered">{{ inquilino.muerte }}</td>
-                <td class="centered">{{ inquilino.familia_id }}</td>
-                <td class="centered">{{ inquilino.empleo_id }}</td>
-                <td class="centered">{{ inquilino.roles_id }}</td>
-                <td class="centered">{{ inquilino.id_estancia }}</td>
-                <td class="centered">
-                  <button @click="eliminarInquilino(inquilino.id)" class="btn btn-danger">Eliminar</button>
-                  <button @click="editarInquilino(inquilino)" class="btn btn-primary">Modificar</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="styled-table">
+              <caption>Inquilinos</caption>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Categoria</th>
+                  <th>Nacimiento</th>
+                  <th>Muerte</th>
+                  <th>Familia ID</th>
+                  <th>Empleo ID</th>
+                  <th>Roles ID</th>
+                  <th>Estancia ID</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="inquilino in inquilinosFiltrados" :key="inquilino.id">
+                  <td class="centered">{{ inquilino.id }}</td>
+                  <td class="centered">{{ inquilino.nombre }}</td>
+                  <td class="centered">{{ inquilino.categoria }}</td>
+                  <td class="centered">{{ inquilino.nacimiento }}</td>
+                  <td class="centered">{{ inquilino.muerte }}</td>
+                  <td class="centered">{{ inquilino.familia_id }}</td>
+                  <td class="centered">{{ inquilino.empleo_id }}</td>
+                  <td class="centered">{{ inquilino.roles_id }}</td>
+                  <td class="centered">{{ inquilino.id_estancia }}</td>
+                  <td class="centered">
+                    <button @click="eliminarInquilino(inquilino.id)" class="btn btn-danger">Eliminar</button>
+                    <button @click="editarInquilino(inquilino)" class="btn btn-primary">Modificar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -310,7 +312,11 @@ export default {
 }
 
 .content {
+  flex: 1;
   padding: 80px 20px;
+  margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
+  overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
+  box-sizing: border-box;
 }
 
 .main-title {
@@ -337,6 +343,11 @@ export default {
 /* Contenedor derecho: Tabla */
 .table-container {
   width: 65%;
+}
+
+/* Contenedor para hacer la tabla responsive */
+.table-responsive {
+  overflow-x: auto;
 }
 
 /* Caja blanca (Crear y Buscar) */
