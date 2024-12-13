@@ -96,6 +96,68 @@
               <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
           </div>
+
+          <!-- White Box para modificar inquilino -->
+          <div v-if="inquilinoParaEditar" class="white-box">
+            <h3>Modificar Inquilino</h3>
+            <form @submit.prevent="actualizarInquilino">
+              <label for="nombre"></label>
+              <input
+                v-model="inquilinoParaEditar.nombre"
+                id="nombre"
+                type="text"
+                placeholder="Ingrese nombre"
+              />
+              <label for="categoria"></label>
+              <input
+                v-model="inquilinoParaEditar.categoria"
+                id="categoria"
+                type="text"
+                placeholder="Ingrese categoría"
+              />
+              <label for="nacimiento"></label>
+              <input
+                v-model="inquilinoParaEditar.nacimiento"
+                id="nacimiento"
+                type="date"
+              />
+              <label for="muerte"></label>
+              <input
+                v-model="inquilinoParaEditar.muerte"
+                id="muerte"
+                type="date"
+              />
+              <label for="familia_id"></label>
+              <input
+                v-model="inquilinoParaEditar.familia_id"
+                id="familia_id"
+                type="number"
+                placeholder="Ingrese ID de familia"
+              />
+              <label for="empleo_id"></label>
+              <input
+                v-model="inquilinoParaEditar.empleo_id"
+                id="empleo_id"
+                type="number"
+                placeholder="Ingrese ID de empleo"
+              />
+              <label for="roles_id"></label>
+              <input
+                v-model="inquilinoParaEditar.roles_id"
+                id="roles_id"
+                type="number"
+                placeholder="Ingrese ID de roles"
+              />
+              <label for="id_estancia"></label>
+              <input
+                v-model="inquilinoParaEditar.id_estancia"
+                id="id_estancia"
+                type="number"
+                placeholder="Ingrese ID de estancia"
+              />
+              <button type="submit" class="btn btn-primary">Actualizar Inquilino</button>
+            </form>
+          </div>
         </div>
 
         <!-- Contenedor derecho: Tabla -->

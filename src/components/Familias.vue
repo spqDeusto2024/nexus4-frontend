@@ -49,6 +49,21 @@
               <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
           </div>
+
+          <!-- White Box para modificar familia -->
+          <div v-if="familiaParaEditar" class="white-box">
+            <h3>Modificar Familia</h3>
+            <form @submit.prevent="actualizarFamilia">
+              <label for="apellido"></label>
+              <input
+                v-model="familiaParaEditar.apellido"
+                id="apellido"
+                type="text"
+                placeholder="Ingrese apellido"
+              />
+              <button type="submit" class="btn btn-primary">Actualizar Familia</button>
+            </form>
+          </div>
         </div>
 
         <!-- Contenedor derecho: Tabla -->
@@ -63,23 +78,12 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Cambia familias a familiasFiltradas -->
               <tr v-for="familia in familiasFiltradas" :key="familia.id">
                 <td class="centered">{{ familia.id }}</td>
                 <td class="centered">{{ familia.apellido }}</td>
                 <td class="centered">
-                  <button
-                    @click="eliminarFamilia(familia.id)"
-                    class="btn btn-danger"
-                  >
-                    Eliminar
-                  </button>
-                  <button
-                    @click="editarFamilia(familia)"
-                    class="btn btn-primary"
-                  >
-                    Modificar
-                  </button>
+                  <button @click="eliminarFamilia(familia.id)" class="btn btn-danger">Eliminar</button>
+                  <button @click="editarFamilia(familia)" class="btn btn-primary">Modificar</button>
                 </td>
               </tr>
             </tbody>
@@ -89,6 +93,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from "axios";
 
@@ -172,88 +177,81 @@ export default {
 };
 </script>
 
-
-  
-  <style scoped>
-  .dashboard-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
-    color: #fff;
-    font-family: 'Roboto', sans-serif;
-    overflow-y: auto; /* Permitir desplazamiento vertical */
-  }
-  
-  .top-bar {
-    background: #111;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
-  }
-  
-  .brand {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #fff;
-  }
-  
-  .menu {
-    display: flex;
-    gap: 20px;
-    margin-left: 30px;
-  }
-  
-  .menu a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: 500;
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-  }
-  
-  .menu a:hover {
-    background-color: #222;
-  }
-  
-  .logout {
-    margin-left: auto;
-  }
-  
-  .logout a {
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 500;
-    text-decoration: none;
-    border: 1px solid #f00;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-  }
-  
-  .logout a:hover {
-    background-color: #400;
-  }
-  
-  .dashboard-container {
+<style scoped>
+.dashboard-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
   color: #fff;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
+  overflow-y: auto; /* Permitir desplazamiento vertical */
+}
+
+.top-bar {
+  background: #111;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+.brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.menu {
+  display: flex;
+  gap: 20px;
+  margin-left: 30px;
+}
+
+.menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.menu a:hover {
+  background-color: #222;
+}
+
+.logout {
+  margin-left: auto;
+}
+
+.logout a {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid #f00;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.logout a:hover {
+  background-color: #400;
 }
 
 .content {
+  flex: 1;
   padding: 80px 20px;
+  margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
+  overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
+  box-sizing: border-box;
 }
 
 .main-title {
@@ -280,6 +278,11 @@ export default {
 /* Contenedor derecho: Tabla */
 .table-container {
   width: 65%;
+}
+
+/* Contenedor para hacer la tabla responsive */
+.table-responsive {
+  overflow-x: auto;
 }
 
 /* Caja blanca (Crear y Buscar) */
@@ -325,6 +328,7 @@ export default {
   background-color: #CFA04A;
 }
 
+/* Estilos de la tabla */
 .styled-table {
   width: 100%;
   border-collapse: collapse;
@@ -406,5 +410,4 @@ export default {
   text-align: center;
   vertical-align: middle;
 }
-
 </style>

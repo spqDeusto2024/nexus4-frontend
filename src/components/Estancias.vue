@@ -77,38 +77,83 @@
               <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
           </div>
+
+          <!-- White Box para modificar estancia -->
+          <div v-if="estanciaParaEditar" class="white-box">
+            <h3>Modificar Estancia</h3>
+            <form @submit.prevent="actualizarEstancia">
+              <label for="nombre"></label>
+              <input
+                v-model="estanciaParaEditar.nombre"
+                id="nombre"
+                type="text"
+                placeholder="Ingrese nombre"
+              />
+              <label for="categoria"></label>
+              <input
+                v-model="estanciaParaEditar.categoria"
+                id="categoria"
+                type="text"
+                placeholder="Ingrese categoría"
+              />
+              <label for="personas_actuales"></label>
+              <input
+                v-model="estanciaParaEditar.personas_actuales"
+                id="personas_actuales"
+                type="number"
+                placeholder="Ingrese personas actuales"
+              />
+              <label for="capacidad_max"></label>
+              <input
+                v-model="estanciaParaEditar.capacidad_max"
+                id="capacidad_max"
+                type="number"
+                placeholder="Ingrese capacidad máxima"
+              />
+              <label for="recurso_id"></label>
+              <input
+                v-model="estanciaParaEditar.recurso_id"
+                id="recurso_id"
+                type="number"
+                placeholder="Ingrese ID de recurso"
+              />
+              <button type="submit" class="btn btn-primary">Actualizar Estancia</button>
+            </form>
+          </div>
         </div>
 
         <!-- Contenedor derecho: Tabla -->
         <div class="table-container">
-          <table class="styled-table">
-            <caption>Estancias</caption>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Personas Actuales</th>
-                <th>Capacidad Máxima</th>
-                <th>Recurso ID</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="estancia in estanciasFiltradas" :key="estancia.id">
-                <td class="centered">{{ estancia.id }}</td>
-                <td class="centered">{{ estancia.nombre }}</td>
-                <td class="centered">{{ estancia.categoria }}</td>
-                <td class="centered">{{ estancia.personas_actuales }}</td>
-                <td class="centered">{{ estancia.capacidad_max }}</td>
-                <td class="centered">{{ estancia.recurso_id }}</td>
-                <td class="centered">
-                  <button @click="eliminarEstancia(estancia.id)" class="btn btn-danger">Eliminar</button>
-                  <button @click="editarEstancia(estancia)" class="btn btn-primary">Modificar</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="styled-table">
+              <caption>Estancias</caption>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Personas Actuales</th>
+                  <th>Capacidad Máxima</th>
+                  <th>Recurso ID</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="estancia in estanciasFiltradas" :key="estancia.id">
+                  <td class="centered">{{ estancia.id }}</td>
+                  <td class="centered">{{ estancia.nombre }}</td>
+                  <td class="centered">{{ estancia.categoria }}</td>
+                  <td class="centered">{{ estancia.personas_actuales }}</td>
+                  <td class="centered">{{ estancia.capacidad_max }}</td>
+                  <td class="centered">{{ estancia.recurso_id }}</td>
+                  <td class="centered">
+                    <button @click="eliminarEstancia(estancia.id)" class="btn btn-danger">Eliminar</button>
+                    <button @click="editarEstancia(estancia)" class="btn btn-primary">Modificar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -279,7 +324,11 @@ export default {
 }
 
 .content {
+  flex: 1;
   padding: 80px 20px;
+  margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
+  overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
+  box-sizing: border-box;
 }
 
 .main-title {
@@ -306,6 +355,11 @@ export default {
 /* Contenedor derecho: Tabla */
 .table-container {
   width: 65%;
+}
+
+/* Contenedor para hacer la tabla responsive */
+.table-responsive {
+  overflow-x: auto;
 }
 
 /* Caja blanca (Crear y Buscar) */
@@ -351,6 +405,7 @@ export default {
   background-color: #CFA04A;
 }
 
+/* Estilos de la tabla */
 .styled-table {
   width: 100%;
   border-collapse: collapse;
