@@ -71,40 +71,19 @@
             </form>
           </div>
 
-          <!-- White Box para modificar recurso -->
-          <div v-if="recursoParaEditar" class="white-box">
-            <h3>Modificar Recurso</h3>
-            <form @submit.prevent="actualizarRecurso">
-              <label for="nombre"></label>
-              <input
-                v-model="recursoParaEditar.nombre"
-                id="nombre"
-                type="text"
-                placeholder="Ingrese nombre"
-              />
-              <label for="capacidad_min"></label>
-              <input
-                v-model="recursoParaEditar.capacidad_min"
-                id="capacidad_min"
-                type="number"
-                placeholder="Ingrese capacidad mínima"
-              />
-              <label for="capacidad_max"></label>
-              <input
-                v-model="recursoParaEditar.capacidad_max"
-                id="capacidad_max"
-                type="number"
-                placeholder="Ingrese capacidad máxima"
-              />
-              <label for="capacidad_actual"></label>
-              <input
-                v-model="recursoParaEditar.capacidad_actual"
-                id="capacidad_actual"
-                type="number"
-                placeholder="Ingrese capacidad actual"
-              />
-              <button type="submit" class="btn btn-primary">Actualizar Recurso</button>
-            </form>
+          <!-- White Box para modificar recurso con controles -->
+          <div class="white-box modify-recursos">
+            <h3>Modificar Recursos</h3>
+            <div v-for="(recurso, index) in recursosFiltrados" :key="recurso.id" class="recurso-control">
+              <h4>{{ recurso.nombre }}</h4>
+              <div class="control-buttons">
+                <button @click="modificarRecurso(index, -10)">-10</button>
+                <button @click="modificarRecurso(index, -1)">-1</button>
+                <span>{{ recurso.capacidad_actual }}%</span>
+                <button @click="modificarRecurso(index, 1)">+1</button>
+                <button @click="modificarRecurso(index, 10)">+10</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -140,6 +119,14 @@
           </div>
         </div>
       </div>
+
+      <!-- Alarma -->
+      <div v-if="alarmaActiva" class="alarm-overlay">
+        <div class="alarm-modal">
+          <p class="alert-message">¡Alerta! La capacidad de algún recurso ha excedido los límites permitidos.</p>
+          <button @click="desactivarAlarma" class="btn btn-primary">Aceptar</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -158,10 +145,12 @@ export default {
         nombre: "",
         capacidad_min: 0,
         capacidad_max: 0,
-        capacidad_actual: 0
+        capacidad_actual: 0,
       },
       mostrarFormularioCrearRecurso: false,
       recursoParaEditar: null, // Recurso seleccionado para editar
+      alarmaActiva: false, // Controla si la alarma está activa
+      indiceAlarma: null, // Índice del recurso que activó la alarma
     };
   },
   mounted() {
@@ -179,10 +168,8 @@ export default {
     },
     filtrarRecursos() {
       if (!this.busqueda) {
-        // Si no hay texto en el buscador, muestra todos los recursos
         this.recursosFiltrados = [...this.recursos];
       } else {
-        // Filtra los recursos cuyo nombre contiene el texto de búsqueda
         this.recursosFiltrados = this.recursos.filter((recurso) =>
           recurso.nombre.toLowerCase().includes(this.busqueda.toLowerCase())
         );
@@ -192,13 +179,8 @@ export default {
       try {
         const response = await axios.post("http://localhost:8000/recurso/create", this.nuevoRecurso);
         this.recursos.push(response.data);
-        this.recursosFiltrados.push(response.data); // Agrega el nuevo recurso también a la lista filtrada
-        this.nuevoRecurso = {
-          nombre: "",
-          capacidad_min: 0,
-          capacidad_max: 0,
-          capacidad_actual: 0
-        };
+        this.recursosFiltrados.push(response.data);
+        this.nuevoRecurso = { nombre: "", capacidad_min: 0, capacidad_max: 0, capacidad_actual: 0 };
         this.mostrarFormularioCrearRecurso = false;
       } catch (error) {
         console.error("Error al crear el recurso:", error);
@@ -208,7 +190,7 @@ export default {
       try {
         await axios.delete(`http://localhost:8000/recurso/delete/${id}`);
         this.recursos = this.recursos.filter((recurso) => recurso.id !== id);
-        this.filtrarRecursos(); // Vuelve a aplicar el filtro después de eliminar
+        this.filtrarRecursos();
       } catch (error) {
         console.error("Error al eliminar el recurso:", error);
       }
@@ -226,15 +208,40 @@ export default {
           (recurso) => recurso.id === this.recursoParaEditar.id
         );
         this.$set(this.recursos, index, response.data);
-        this.filtrarRecursos(); // Vuelve a aplicar el filtro después de actualizar
+        this.filtrarRecursos();
         this.recursoParaEditar = null;
       } catch (error) {
         console.error("Error al actualizar el recurso:", error);
       }
     },
+    // Modificar el recurso dentro de los límites
+    modificarRecurso(index, cantidad) {
+      const recurso = this.recursos[index];
+      const nuevoValor = recurso.capacidad_actual + cantidad;
+
+      if (nuevoValor > recurso.capacidad_max) {
+        recurso.capacidad_actual = recurso.capacidad_max;
+        this.alarmaActiva = true;
+        this.indiceAlarma = index;
+        return;
+      }
+      if (nuevoValor < recurso.capacidad_min) {
+        recurso.capacidad_actual = recurso.capacidad_min;
+        this.alarmaActiva = true;
+        this.indiceAlarma = index;
+        return;
+      }
+      recurso.capacidad_actual = nuevoValor;
+    },
+    // Desactiva la alarma y asegura que el recurso esté dentro de los límites
+    desactivarAlarma() {
+      this.alarmaActiva = false;
+      this.indiceAlarma = null; // Reinicia el índice de la alarma activa
+    },
   },
 };
 </script>
+
 
 <style scoped>
 .dashboard-container {
