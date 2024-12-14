@@ -24,10 +24,10 @@
           <div class="white-box">
             <h3>Crear Empleo</h3>
             <form @submit.prevent="crearEmpleo">
-              <label for="nombre"></label>
+              <label for="empleo"></label>
               <input
-                v-model="nuevoEmpleo.nombre"
-                id="nombre"
+                v-model="nuevoEmpleo.empleo"
+                id="empleo"
                 type="text"
                 placeholder="Ingrese nombre del empleo"
               />
@@ -38,10 +38,10 @@
                 type="number"
                 placeholder="Ingrese edad mínima"
               />
-              <label for="estancia_id"></label>
+              <label for="id_estancia"></label>
               <input
-                v-model="nuevoEmpleo.estancia_id"
-                id="estancia_id"
+                v-model="nuevoEmpleo.id_estancia"
+                id="id_estancia"
                 type="number"
                 placeholder="Ingrese ID de estancia"
               />
@@ -68,10 +68,10 @@
           <div v-if="empleoParaEditar" class="white-box">
             <h3>Modificar Empleo</h3>
             <form @submit.prevent="actualizarEmpleo">
-              <label for="nombre"></label>
+              <label for="empleo"></label>
               <input
-                v-model="empleoParaEditar.nombre"
-                id="nombre"
+                v-model="empleoParaEditar.empleo"
+                id="empleo"
                 type="text"
                 placeholder="Ingrese nombre del empleo"
               />
@@ -82,10 +82,10 @@
                 type="number"
                 placeholder="Ingrese edad mínima"
               />
-              <label for="estancia_id"></label>
+              <label for="id_estancia"></label>
               <input
-                v-model="empleoParaEditar.estancia_id"
-                id="estancia_id"
+                v-model="empleoParaEditar.id_estancia"
+                id="id_estancia"
                 type="number"
                 placeholder="Ingrese ID de estancia"
               />
@@ -102,7 +102,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Nombre</th>
+                  <th>Empleo</th>
                   <th>Edad Mínima</th>
                   <th>Estancia ID</th>
                   <th>Acciones</th>
@@ -111,9 +111,9 @@
               <tbody>
                 <tr v-for="empleo in empleosFiltrados" :key="empleo.id">
                   <td class="centered">{{ empleo.id }}</td>
-                  <td class="centered">{{ empleo.nombre }}</td>
+                  <td class="centered">{{ empleo.empleo }}</td>
                   <td class="centered">{{ empleo.edad_minima }}</td>
-                  <td class="centered">{{ empleo.estancia_id }}</td>
+                  <td class="centered">{{ empleo.id_estancia }}</td>
                   <td class="centered">
                     <button @click="eliminarEmpleo(empleo.id)" class="btn btn-danger">Eliminar</button>
                     <button @click="editarEmpleo(empleo)" class="btn btn-primary">Modificar</button>
@@ -140,9 +140,9 @@ export default {
       empleosFiltrados: [], // Lista de empleos que se muestran (originalmente todos)
       busqueda: "", // Texto ingresado en el buscador
       nuevoEmpleo: {
-        nombre: "",
+        empleo: "",
         edad_minima: 0,
-        estancia_id: 0,
+        id_estancia: 0,
       },
       empleoParaEditar: null, // Empleo seleccionado para editar
     };
@@ -167,7 +167,7 @@ export default {
       } else {
         // Filtra los empleos cuyo nombre contiene el texto de búsqueda
         this.empleosFiltrados = this.empleos.filter((empleo) =>
-          empleo.nombre.toLowerCase().includes(this.busqueda.toLowerCase())
+          empleo.empleo.toLowerCase().includes(this.busqueda.toLowerCase())
         );
       }
     },
@@ -177,9 +177,9 @@ export default {
         this.empleos.push(response.data);
         this.empleosFiltrados.push(response.data); // Agrega el nuevo empleo también a la lista filtrada
         this.nuevoEmpleo = {
-          nombre: "",
+          empleo: "",
           edad_minima: 0,
-          estancia_id: 0,
+          id_estancia: 0,
         };
       } catch (error) {
         console.error("Error al crear el empleo:", error);
