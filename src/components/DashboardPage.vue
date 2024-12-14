@@ -18,25 +18,16 @@
     <div class="content">
       <h1 class="main-title">Panel de Control</h1>
       <div class="grid-container">
+        
         <!-- Caja con 3 recursos y barras -->
         <div class="box" @click="goToRecursos">
-          <div class="label">Agua</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar" :style="{ width: '70%' }"></div>
+          <div v-for="(recurso, index) in recursos.slice(0, 3)" :key="index" class="recurso-item">
+            <div class="label">{{ recurso.nombre }}</div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" :style="{ width: recurso.porcentaje + '%' }"></div>
+            </div>
+            <div class="subvalue">{{ recurso.porcentaje }}%</div>
           </div>
-          <div class="subvalue">70%</div>
-
-          <div class="label">Aire</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar" :style="{ width: '50%' }"></div>
-          </div>
-          <div class="subvalue">50%</div>
-
-          <div class="label">Temperatura</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar" :style="{ width: '90%' }"></div>
-          </div>
-          <div class="subvalue">90%</div>
         </div>
 
         <!-- Caja de estancias -->
@@ -88,7 +79,7 @@ export default {
   setup() {
     const estancias = ref(0)
     const inquilinos = ref(0)
-    const recursos = ref(0)
+    const recursos = ref([]);
     const alertas = ref(0)
     const empleos = ref(0)
     const familias = ref(0)
@@ -118,10 +109,16 @@ export default {
 
     const obtenerRecursos = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/recurso/get_all')
-        recursos.value = response.data.length
+        const response = await axios.get('http://localhost:8000/recurso/get_all');
+        // Asignar directamente los recursos desde la API
+        recursos.value = response.data.map((recurso) => ({
+          nombre: recurso.nombre,
+          porcentaje: Math.round(
+            (recurso.capacidad_actual / recurso.capacidad_max) * 100
+          ), // Calcular porcentaje de capacidad
+        }));
       } catch (error) {
-        console.error('Error al obtener los recursos:', error)
+        console.error('Error al obtener los recursos:', error);
       }
     }
 
@@ -183,7 +180,7 @@ export default {
       this.$router.push({ name: 'Familias' })
     },
     goToRecursos() {
-      this.$router.push({ name: 'Recursos' })
+      this.$router.push({ name: 'Recursos' });
     },
     goToEmpleos() {
       this.$router.push({ name: 'Empleos' })
