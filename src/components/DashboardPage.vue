@@ -278,10 +278,9 @@ export default {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(3, minmax(200px, 1fr));
-  gap: 40px;
-  max-width: 1200px;
-  margin: 0 auto;
+  grid-template-columns: repeat(3, 1fr); /* Distribuye las cajas equitativamente */
+  gap: 20px;
+  width: 100%; /* Asegura que el contenedor ocupe todo el espacio disponible */
 }
 
 .box {
@@ -294,8 +293,9 @@ export default {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  width: 100%;
 }
 
 .box:hover {
@@ -318,9 +318,11 @@ export default {
 }
 
 .subvalue {
-  font-size: 1.4rem;
-  font-weight: 400;
-  color: #ccc;
+  text-align: center; /* Centra el texto */
+  width: 100%; /* Asegura que ocupe todo el ancho del contenedor */
+  margin-top: 5px; /* Un pequeño margen para separar del progreso */
+  font-size: 14px; /* Puedes ajustar el tamaño de la fuente si es necesario */
+  color: #fff; /* Asegura que el texto sea visible */
 }
 
 .progress-bar-container {
@@ -335,6 +337,7 @@ export default {
 .progress-bar {
   background: #4caf50;
   height: 100%;
+  width: 90%;
 }
 
 .alarm-button {
