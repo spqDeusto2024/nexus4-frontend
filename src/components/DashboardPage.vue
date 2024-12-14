@@ -43,15 +43,31 @@
         </div>
 
         <!-- Caja con botón de alarma -->
-        <div class="box">
+        <div
+          class="box"
+          @click="toggleAlarma"
+          v-if="!alarmaActiva"
+        >
           <div class="label">Alarma</div>
           <button
             class="alarm-button"
             :class="{ active: alarmaActiva }"
-            @click="toggleAlarma"
           >
-            {{ alarmaActiva ? 'ON' : 'OFF' }}
+            ON
           </button>
+        </div>
+
+        <!-- Pantalla de alarma activa -->
+        <div
+          v-if="alarmaActiva"
+          class="alarm-overlay"
+        >
+          <div class="alarm-modal">
+            <p class="alert-message">¡Alarma activada! Introduce la contraseña para desactivarla:</p>
+            <input type="password" v-model="password" placeholder="Contraseña" />
+            <button @click="deactivateAlarma">Desactivar Alarma</button>
+            <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+          </div>
         </div>
 
         <!-- Caja de Empleo disponibles -->
@@ -73,6 +89,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import alarmSoundFile from '@/assets/alarma-de-incendios.mp3';
 
 export default {
   name: 'DashboardPage',
@@ -84,10 +101,10 @@ export default {
     const empleos = ref(0)
     const familias = ref(0)
     const alarmaActiva = ref(false)
-
-    const toggleAlarma = () => {
-      alarmaActiva.value = !alarmaActiva.value
-    }
+    const password = ref('');
+    const errorMessage = ref('');
+    const correctPassword = '1234'; // Contraseña predeterminada
+    let alarmSound = null;
 
     const obtenerEstancias = async () => {
       try {
@@ -149,25 +166,67 @@ export default {
       }
     }
 
-    onMounted(() => {
-      obtenerEstancias()
-      obtenerInquilinos()
-      obtenerRecursos()
-      obtenerAlertas()
-      obtenerEmpleos()
-      obtenerFamilias()
-    })
-
-    return {
-      estancias,
-      inquilinos,
-      recursos,
-      alertas,
-      empleos,
-      familias,
-      alarmaActiva,
-      toggleAlarma,
+  const toggleAlarma = () => {
+    if (!alarmaActiva.value) {
+      // Activar alarma
+      alarmaActiva.value = true;
+      playAlarm();
+      errorMessage.value = '';
+    } else {
+      // Lógica para desactivar la alarma si ya está activa
+      alarmaActiva.value = false;
+      stopAlarm();
     }
+  };
+
+  const stopAlarm = () => {
+    if (alarmSound) {
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+    }
+  };
+
+  const playAlarm = () => {
+  if (!alarmSound) {
+    alarmSound = new Audio(alarmSoundFile); // Usar el archivo importado
+  }
+  alarmSound.loop = true; // Configurar el bucle
+  alarmSound.play();
+  };
+
+  const deactivateAlarma = () => {
+    if (password.value === correctPassword) {
+      alarmaActiva.value = false;
+      stopAlarm();
+      password.value = '';
+      errorMessage.value = '';
+    } else {
+      errorMessage.value = 'Contraseña incorrecta. Inténtalo de nuevo.';
+    }
+  };
+
+  onMounted(() => {
+    obtenerEstancias();
+    obtenerInquilinos();
+    obtenerRecursos();
+    obtenerAlertas();
+    obtenerEmpleos();
+    obtenerFamilias();
+  });
+
+  return {
+    estancias,
+    inquilinos,
+    recursos,
+    alertas,
+    empleos,
+    familias,
+    alarmaActiva,
+    password,
+    errorMessage,
+    toggleAlarma,
+    deactivateAlarma,
+  }
   },
   methods: {
     goToEstancias() {
@@ -278,9 +337,10 @@ export default {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Distribuye las cajas equitativamente */
-  gap: 20px;
-  width: 100%; /* Asegura que el contenedor ocupe todo el espacio disponible */
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .box {
@@ -293,9 +353,8 @@ export default {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  width: 100%;
 }
 
 .box:hover {
@@ -318,11 +377,9 @@ export default {
 }
 
 .subvalue {
-  text-align: center; /* Centra el texto */
-  width: 100%; /* Asegura que ocupe todo el ancho del contenedor */
-  margin-top: 5px; /* Un pequeño margen para separar del progreso */
-  font-size: 14px; /* Puedes ajustar el tamaño de la fuente si es necesario */
-  color: #fff; /* Asegura que el texto sea visible */
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #ccc;
 }
 
 .progress-bar-container {
@@ -359,5 +416,80 @@ export default {
 
 .alarm-button:hover {
   opacity: 0.8;
+}
+.alarm-deactivation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.alarm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.6); /* Rojo con transparencia */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenedor centrado con diseño moderno */
+.alarm-modal {
+  background: #ffffff; /* Fondo blanco */
+  padding: 30px 50px;
+  border-radius: 16px; /* Bordes redondeados */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); /* Sombra */
+  text-align: center;
+  max-width: 400px;
+  width: 90%; /* Adaptable a pantallas pequeñas */
+  border: 2px solid #f2cf74; /* Borde amarillo suave */
+}
+
+/* Estilo del mensaje de alerta */
+.alert-message {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #f44336; /* Rojo para alerta */
+  margin-bottom: 20px;
+}
+
+/* Campo de entrada de contraseña */
+.alarm-modal input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Botón de desbloqueo */
+.alarm-modal button {
+  background-color: #4caf50; /* Verde para indicar desbloqueo */
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.alarm-modal button:hover {
+  background-color: #45a049;
+  transform: scale(1.05); /* Efecto de aumento */
+}
+
+/* Mensaje de error */
+.error-message {
+  color: #f44336; /* Rojo para el error */
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
 </style>
