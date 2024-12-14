@@ -19,14 +19,15 @@
       <h1 class="main-title">Panel de Control</h1>
       <div class="grid-container">
         
-        <!-- Caja con 3 recursos y barras -->
+        <!-- Caja con recursos y barras -->
         <div class="box" @click="goToRecursos">
-          <div v-for="(recurso, index) in recursos.slice(0, 3)" :key="index" class="recurso-item">
+          <div v-for="(recurso, index) in recursos" :key="index" class="recurso-item">
             <div class="label">{{ recurso.nombre }}</div>
             <div class="progress-bar-container">
-              <div class="progress-bar" :style="{ width: recurso.porcentaje + '%' }"></div>
+              <div class="progress-bar" :style="{ width: recurso.porcentaje + '%' }">
+                <span class="progress-text">{{ recurso.porcentaje }}%</span>
+              </div>
             </div>
-            <div class="subvalue">{{ recurso.porcentaje }}%</div>
           </div>
         </div>
 
@@ -367,6 +368,7 @@ export default {
   font-weight: 500;
   margin-bottom: 10px;
   color: #fff;
+  text-align: center;
 }
 
 .value {
@@ -385,16 +387,27 @@ export default {
 .progress-bar-container {
   background: #333;
   width: 100%;
-  height: 8px;
+  height: 25px;
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 10px;
+  position: relative;
 }
 
+/* La barra de progreso en sí */
 .progress-bar {
   background: #4caf50;
   height: 100%;
-  width: 90%;
+  position: relative;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-weight: bold;
+  line-height: 25px; /* Igual a la altura de la barra */
 }
 
 .alarm-button {
@@ -491,5 +504,17 @@ export default {
   color: #f44336; /* Rojo para el error */
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+/* Asegurar que la caja de recursos ocupa todo el ancho */
+.recursos-box {
+  grid-column: span 3; /* Si estás usando grid, puede ocupar más columnas */
+  width: 100%;
+}
+
+/* Ajustar el recurso-item para que tome todo el ancho */
+.recurso-item {
+  width: 100%;
+  margin-bottom: 20px;
 }
 </style>

@@ -79,8 +79,7 @@
               <div class="control-buttons">
                 <button @click="modificarRecurso(index, -10)">-10</button>
                 <button @click="modificarRecurso(index, -1)">-1</button>
-                <span>{{ recurso.capacidad_actual }}%</span>
-                <button @click="modificarRecurso(index, 1)">+1</button>
+                <span>{{ (recurso.capacidad_actual / recurso.capacidad_max * 100) }}%</span>                <button @click="modificarRecurso(index, 1)">+1</button>
                 <button @click="modificarRecurso(index, 10)">+10</button>
               </div>
             </div>
@@ -221,7 +220,7 @@ export default {
       }
     },
     // Modificar el recurso dentro de los límites
-    modificarRecurso(index, cantidad) {
+    async modificarRecurso(index, cantidad) {
       const recurso = this.recursos[index];
       const nuevoValor = recurso.capacidad_actual + cantidad;
 
@@ -229,17 +228,31 @@ export default {
         recurso.capacidad_actual = recurso.capacidad_max;
         this.alarmaActiva = true;
         this.indiceAlarma = index;
+        await this.actualizarRecursoEnBackend(recurso.id, cantidad);
         return;
       }
       if (nuevoValor < recurso.capacidad_min) {
         recurso.capacidad_actual = recurso.capacidad_min;
         this.alarmaActiva = true;
         this.indiceAlarma = index;
+        await this.actualizarRecursoEnBackend(recurso.id, cantidad);
         return;
       }
       recurso.capacidad_actual = nuevoValor;
+      await this.actualizarRecursoEnBackend(recurso.id, cantidad);
     },
-  
+    async actualizarRecursoEnBackend(id, cantidad) {
+      try {
+        await axios.post(`http://localhost:8000/recurso/modify`, {
+          id: id,
+          cantidad: cantidad,
+        });
+        console.log("Recurso actualizado en el backend");
+      } catch (error) {
+        console.error("Error al actualizar el recurso en el backend:", error);
+      }
+    },
+
     playAlarm() {
   console.log("Intentando reproducir el sonido de la alarma...");
   if (!this.alarmSound) {
@@ -590,5 +603,59 @@ export default {
   color: #f44336;
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+/* Estilos para la sección modificar recursos */
+.modify-recursos .recurso-control {
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modify-recursos h4 {
+  margin-bottom: 10px;
+  color: #CFA04A; /* Color similar al resto de títulos */
+  font-size: 1.2rem;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.control-buttons button {
+  background-color: #444;
+  color: #fff;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.control-buttons button:hover {
+  background-color: #555;
+  transform: scale(1.05);
+}
+
+.control-buttons span {
+  font-size: 1.2rem;
+  color: #fff;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Ajustar el estilo de los botones para que coincidan con el resto */
+.control-buttons button {
+  background-color: #CFA04A;
+  color: #fff;
+}
+
+.control-buttons button:hover {
+  background-color: #b8923e;
 }
 </style>
