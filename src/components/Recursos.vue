@@ -119,12 +119,13 @@
           </div>
         </div>
       </div>
-
-      <!-- Alarma -->
+    <!-- Alarma -->
       <div v-if="alarmaActiva" class="alarm-overlay">
         <div class="alarm-modal">
-          <p class="alert-message">¡Alerta! La capacidad de algún recurso ha excedido los límites permitidos.</p>
-          <button @click="desactivarAlarma" class="btn btn-primary">Aceptar</button>
+          <p class="alert-message">¡Alerta! Vas a superar los límites del recurso.</p>
+          <input type="password" v-model="password" placeholder="Contraseña" />
+          <button @click="desactivarAlarma">Desactivar Alarma</button>
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         </div>
       </div>
     </div>
@@ -133,6 +134,7 @@
 
 <script>
 import axios from "axios";
+import alarmSoundFile from '@/assets/alarma-de-incendios.mp3';
 
 export default {
   name: "RecursosComponent",
@@ -151,6 +153,10 @@ export default {
       recursoParaEditar: null, // Recurso seleccionado para editar
       alarmaActiva: false, // Controla si la alarma está activa
       indiceAlarma: null, // Índice del recurso que activó la alarma
+      password: '',
+      errorMessage: '',
+      correctPassword: '1234', // Contraseña para desactivar la alarma
+      alarmSound: null, // Para almacenar el objeto de sonido
     };
   },
   mounted() {
@@ -233,11 +239,55 @@ export default {
       }
       recurso.capacidad_actual = nuevoValor;
     },
-    // Desactiva la alarma y asegura que el recurso esté dentro de los límites
-    desactivarAlarma() {
+  
+    playAlarm() {
+  console.log("Intentando reproducir el sonido de la alarma...");
+  if (!this.alarmSound) {
+    this.alarmSound = new Audio(alarmSoundFile);
+    this.alarmSound.loop = true;
+    console.log("Audio cargado y configurado para repetir.");
+  }
+  this.alarmSound.play().then(() => {
+    console.log("Reproducción de alarma iniciada.");
+  }).catch((error) => {
+    console.error("Error al reproducir el sonido:", error);
+  });
+},
+  stopAlarm() {
+    if (this.alarmSound) {
+      this.alarmSound.pause();
+      this.alarmSound.currentTime = 0;
+    }
+  },
+  desactivarAlarma() {
+    if (this.password === this.correctPassword) {
       this.alarmaActiva = false;
-      this.indiceAlarma = null; // Reinicia el índice de la alarma activa
-    },
+      this.stopAlarm();
+      this.password = '';
+      this.errorMessage = '';
+    } else {
+      this.errorMessage = 'Contraseña incorrecta. Inténtalo de nuevo.';
+    }
+  },
+  // Modifica el método donde verificas la capacidad de los recursos
+  async obtenerRecursosCapacidad() {
+    try {
+      const response = await axios.get('http://localhost:8000/recurso/get_all');
+      this.recursos = response.data;
+
+      // Verifica si algún recurso excede los límites
+      const recursoAlerta = this.recursos.find(
+        recurso => recurso.capacidad_actual > recurso.capacidad_max || recurso.capacidad_actual < recurso.capacidad_min
+      );
+
+      if (recursoAlerta) {
+        this.alarmaActiva = true;
+        this.playAlarm();
+      }
+    } catch (error) {
+      console.error('Error al obtener los recursos:', error);
+    }
+  },
   },
 };
 </script>
@@ -475,5 +525,70 @@ export default {
 .centered {
   text-align: center;
   vertical-align: middle;
+}
+
+/* Alarma */
+.alarm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alarm-modal {
+  background: #ffffff;
+  padding: 30px 50px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  border: 2px solid #f2cf74;
+}
+
+.alert-message {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #f44336;
+  margin-bottom: 20px;
+}
+
+.alarm-modal input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.alarm-modal button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.alarm-modal button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
 </style>
