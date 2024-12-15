@@ -79,7 +79,8 @@
               <div class="control-buttons">
                 <button @click="modificarRecurso(index, -10)">-10</button>
                 <button @click="modificarRecurso(index, -1)">-1</button>
-                <span>{{ (recurso.capacidad_actual / recurso.capacidad_max * 100) }}%</span>                <button @click="modificarRecurso(index, 1)">+1</button>
+                <span>{{ (recurso.capacidad_actual / recurso.capacidad_max * 100).toFixed(2) }}%</span>
+                <button @click="modificarRecurso(index, 1)">+1</button>
                 <button @click="modificarRecurso(index, 10)">+10</button>
               </div>
             </div>
@@ -118,7 +119,7 @@
           </div>
         </div>
       </div>
-    <!-- Alarma -->
+      <!-- Alarma -->
       <div v-if="alarmaActiva" class="alarm-overlay">
         <div class="alarm-modal">
           <p class="alert-message">¡Alerta! Vas a superar los límites del recurso.</p>
@@ -167,6 +168,7 @@ export default {
         const response = await axios.get("http://localhost:8000/recurso/get_all");
         this.recursos = response.data;
         this.recursosFiltrados = [...this.recursos]; // Inicialmente muestra todos los recursos
+        this.verificarAlarmas();
       } catch (error) {
         console.error("Error al obtener los recursos:", error);
       }
@@ -215,6 +217,7 @@ export default {
         this.$set(this.recursos, index, response.data);
         this.filtrarRecursos();
         this.recursoParaEditar = null;
+        this.verificarAlarmas();
       } catch (error) {
         console.error("Error al actualizar el recurso:", error);
       }
@@ -228,6 +231,7 @@ export default {
         recurso.capacidad_actual = recurso.capacidad_max;
         this.alarmaActiva = true;
         this.indiceAlarma = index;
+        this.playAlarm();
         await this.actualizarRecursoEnBackend(recurso.id, cantidad);
         return;
       }
@@ -235,11 +239,15 @@ export default {
         recurso.capacidad_actual = recurso.capacidad_min;
         this.alarmaActiva = true;
         this.indiceAlarma = index;
-        await this.actualizarRecursoEnBackend(recurso.id, cantidad);
+        this.playAlarm();
+        await this.actualizarRecursdEnBackend(recurso.id, cantidad);
         return;
       }
       recurso.capacidad_actual = nuevoValor;
       await this.actualizarRecursoEnBackend(recurso.id, cantidad);
+
+      // Verificar si la alarma debe desactivarse
+      this.verificarAlarmas();
     },
     async actualizarRecursoEnBackend(id, cantidad) {
       try {
@@ -252,59 +260,53 @@ export default {
         console.error("Error al actualizar el recurso en el backend:", error);
       }
     },
-
     playAlarm() {
-  console.log("Intentando reproducir el sonido de la alarma...");
-  if (!this.alarmSound) {
-    this.alarmSound = new Audio(alarmSoundFile);
-    this.alarmSound.loop = true;
-    console.log("Audio cargado y configurado para repetir.");
-  }
-  this.alarmSound.play().then(() => {
-    console.log("Reproducción de alarma iniciada.");
-  }).catch((error) => {
-    console.error("Error al reproducir el sonido:", error);
-  });
-},
-  stopAlarm() {
-    if (this.alarmSound) {
-      this.alarmSound.pause();
-      this.alarmSound.currentTime = 0;
-    }
-  },
-  desactivarAlarma() {
-    if (this.password === this.correctPassword) {
-      this.alarmaActiva = false;
-      this.stopAlarm();
-      this.password = '';
-      this.errorMessage = '';
-    } else {
-      this.errorMessage = 'Contraseña incorrecta. Inténtalo de nuevo.';
-    }
-  },
-  // Modifica el método donde verificas la capacidad de los recursos
-  async obtenerRecursosCapacidad() {
-    try {
-      const response = await axios.get('http://localhost:8000/recurso/get_all');
-      this.recursos = response.data;
-
-      // Verifica si algún recurso excede los límites
-      const recursoAlerta = this.recursos.find(
+      console.log("Intentando reproducir el sonido de la alarma...");
+      if (!this.alarmSound) {
+        this.alarmSound = new Audio(alarmSoundFile);
+        this.alarmSound.loop = true;
+        console.log("Audio cargado y configurado para repetir.");
+      }
+      this.alarmSound.play().then(() => {
+        console.log("Reproducción de alarma iniciada.");
+      }).catch((error) => {
+        console.error("Error al reproducir el sonido:", error);
+      });
+    },
+    stopAlarm() {
+      if (this.alarmSound) {
+        this.alarmSound.pause();
+        this.alarmSound.currentTime = 0;
+        console.log("Reproducción de alarma detenida.");
+      }
+    },
+    desactivarAlarma() {
+      if (this.password === this.correctPassword) {
+        this.alarmaActiva = false;
+        this.stopAlarm();
+        this.password = '';
+        this.errorMessage = '';
+      } else {
+        this.errorMessage = 'Contraseña incorrecta. Inténtalo de nuevo.';
+      }
+    },
+    verificarAlarmas() {
+      const alerta = this.recursos.find(
         recurso => recurso.capacidad_actual > recurso.capacidad_max || recurso.capacidad_actual < recurso.capacidad_min
       );
-
-      if (recursoAlerta) {
+      if (alerta) {
         this.alarmaActiva = true;
         this.playAlarm();
+      } else {
+        if (this.alarmaActiva) {
+          this.alarmaActiva = false;
+          this.stopAlarm();
+        }
       }
-    } catch (error) {
-      console.error('Error al obtener los recursos:', error);
-    }
-  },
+    },
   },
 };
 </script>
-
 
 <style scoped>
 .dashboard-container {
@@ -376,20 +378,20 @@ export default {
 
 .content {
   flex: 1;
-  padding: 80px 20px;
-  margin-top: 60px; /* Evita que el contenido quede oculto detrás del encabezado fijo */
-  overflow-y: auto; /* Permite el desplazamiento vertical */
+  padding: 80px 20px 20px;
   box-sizing: border-box;
-  max-height: calc(100vh - 60px); /* Altura máxima basada en la altura de la ventana menos el header */
+  margin-top: 60px; /* Añadir margen superior para evitar que el contenido quede oculto detrás del encabezado fijo */
+  max-height: calc(100vh - 60px); /* Ajusta 60px a la altura de tu encabezado */
+  overflow-y: auto; /* Permitir desplazamiento vertical en el contenido */
+  overflow: auto;
 }
 
 .main-title {
-  text-align: center;
   font-size: 1.8rem;
+  text-align: center;
   margin-bottom: 20px;
 }
 
-/* Layout principal */
 .layout {
   display: flex;
   justify-content: space-between;
@@ -628,18 +630,12 @@ export default {
 }
 
 .control-buttons button {
-  background-color: #444;
+  background-color: #CFA04A;
   color: #fff;
-  padding: 10px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
 }
 
 .control-buttons button:hover {
-  background-color: #555;
-  transform: scale(1.05);
+  background-color: #b8923e;
 }
 
 .control-buttons span {
@@ -647,15 +643,5 @@ export default {
   color: #fff;
   min-width: 40px;
   text-align: center;
-}
-
-/* Ajustar el estilo de los botones para que coincidan con el resto */
-.control-buttons button {
-  background-color: #CFA04A;
-  color: #fff;
-}
-
-.control-buttons button:hover {
-  background-color: #b8923e;
 }
 </style>
