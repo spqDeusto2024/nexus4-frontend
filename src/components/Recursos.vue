@@ -240,7 +240,7 @@ export default {
         this.alarmaActiva = true;
         this.indiceAlarma = index;
         this.playAlarm();
-        await this.actualizarRecursdEnBackend(recurso.id, cantidad);
+        await this.actualizarRecursoEnBackend(recurso.id, cantidad);
         return;
       }
       recurso.capacidad_actual = nuevoValor;
