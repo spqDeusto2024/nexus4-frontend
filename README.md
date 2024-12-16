@@ -1,4 +1,16 @@
-# nexus4-frontend
+# Nexus4-frontend
+
+## Introduction
+
+Nexus4 is a project designed for the management of a nuclear shelter.
+
+### Main Features:
+- **Management of the shelter's tenants and their families**
+- **Management of the shelter's resources**
+- **Management of the shelter's alarms**
+- **Management of the shelter's rooms**
+
+---
 
 ## Project setup
 ```
